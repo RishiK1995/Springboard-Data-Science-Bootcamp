@@ -70,17 +70,17 @@ in question. */
 
 SELECT name, monthlymaintenance,
 CASE WHEN monthlymaintenance <=100 THEN 'cheap' ELSE 'expensive' END AS label
-FROM `Facilities`
+FROM Facilities
 
 
 /* Q6: You'd like to get the first and last name of the last member(s)
 who signed up. Try not to use the LIMIT clause for your solution. */
 
 SELECT surname, firstname
-FROM `Members`
+FROM Members
 WHERE joindate = (
 SELECT MAX( joindate )
-FROM `Members` )
+FROM Members )
 
 
 /* Q7: Produce a list of all members who have used a tennis court.
@@ -89,9 +89,9 @@ formatted as a single column. Ensure no duplicate data, and order by
 the member name. */
 
 SELECT DISTINCT CONCAT( m.firstname, ' ', m.surname ) AS member_name, f.name AS facility_name
-FROM `Bookings` AS b
-LEFT JOIN `Facilities` AS f ON b.facid = f.facid
-LEFT JOIN `Members` AS m ON b.memid = m.memid
+FROM Bookings AS b
+LEFT JOIN Facilities AS f ON b.facid = f.facid
+LEFT JOIN Members AS m ON b.memid = m.memid
 WHERE f.name LIKE 'Tennis%'
 ORDER BY member_name
 
@@ -109,30 +109,24 @@ CASE WHEN b.memid =0
 THEN f.guestcost * b.slots
 ELSE f.membercost * b.slots
 END AS cost
-FROM `Bookings` AS b
-LEFT JOIN `Facilities` AS f ON b.facid = f.facid
-LEFT JOIN `Members` AS m ON b.memid = m.memid
+FROM Bookings AS b
+LEFT JOIN Facilities AS f ON b.facid = f.facid
+LEFT JOIN Members AS m ON b.memid = m.memid
 WHERE b.starttime LIKE '2012-09-14%'
 AND 30 <
-CASE WHEN b.memid =0
-THEN f.guestcost * b.slots
-ELSE f.membercost * b.slots
-END
+CASE WHEN b.memid =0 THEN f.guestcost * b.slots ELSE f.membercost * b.slots END
 ORDER BY cost DESC
 
 
 /* Q9: This time, produce the same result as in Q8, but using a subquery. */
 
 SELECT DISTINCT CONCAT( m.firstname, ' ', m.surname ) AS member_name, f.name AS facility_name,
-CASE WHEN b.memid =0
-THEN f.guestcost * b.slots
-ELSE f.membercost * b.slots
-END AS cost
-FROM `Bookings` AS b
-LEFT JOIN `Facilities` AS f ON b.facid = f.facid
-LEFT JOIN `Members` AS m ON b.memid = m.memid
-WHERE b.starttime LIKE '2012-09-14%' AND b.bookid IN (SELECT b.bookid FROM `Bookings` AS b
-LEFT JOIN `Facilities` AS f ON b.facid = f.facid
+CASE WHEN b.memid =0 THEN f.guestcost * b.slots ELSE f.membercost * b.slots END AS cost
+FROM Bookings AS b
+LEFT JOIN Facilities AS f ON b.facid = f.facid
+LEFT JOIN Members AS m ON b.memid = m.memid
+WHERE b.starttime LIKE '2012-09-14%' AND b.bookid IN (SELECT b.bookid FROM Bookings AS b
+LEFT JOIN Facilities AS f ON b.facid = f.facid
 WHERE (b.memid =0 AND f.guestcost * b.slots >30) OR (b.memid >0 AND f.membercost * b.slots >30))
 ORDER BY cost DESC
 
